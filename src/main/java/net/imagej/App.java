@@ -6,7 +6,8 @@ import com.google.gson.JsonObject;
 import net.imagej.nn.Layer;
 import net.imagej.nn.Model;
 import net.imagej.nn.Ops;
-import net.imagej.nn.enums.Activations;
+import net.imagej.nn.enums.Activation;
+import net.imagej.nn.enums.Padding;
 import net.imagej.nn.layers.*;
 
 import java.io.FileNotFoundException;
@@ -66,9 +67,12 @@ public class App {
                                 {
                                                 { { -0.00756757, 0.02629718 }, { 0.02238744, 0.0419078 } },
                                                 { { -0.03585156, 0.07758348 }, { 0.08057486, 0.03336884 } } } };
+                double[] b = new double[] { 0.00, 0.00};
                 int[] strides = new int[] { 1, 1 };
-                double[][][][] c = new Dilation2D().exec(a, w, strides, Activations.NONE);
+                double[][][][] c = new MaxPooling2D(new int[]{2, 2}, strides, Padding.SAME).exec(a);
                 System.out.println(Arrays.deepToString(c));
+                int[] cShape = new int[] {c.length, c[0].length, c[0][0].length, c[0][0][0].length};
+                System.out.printf("\nShape: %s\n", Arrays.toString(cShape));
 
                 // final String JSON_FILE =
                 // "/home/gbueno/PycharmProjects/pythonProject/model.json";

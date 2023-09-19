@@ -7,12 +7,12 @@ import java.util.stream.IntStream;
 
 public class Ops {
 
-    public static double[][] apply(double[][] a, double b, DoubleUnaryOperator operator) {
-        double[][] c = new double[a.length][a[0].length];
+    public static double[][] apply(double[][] a, DoubleUnaryOperator operator) {
+        double[][] b = new double[a.length][a[0].length];
         for (int i = 0; i < a.length; i++) {
-            c[i] =  Arrays.stream(a[i]).map(operator).toArray();
+            b[i] =  Arrays.stream(a[i]).map(operator).toArray();
         }
-        return c;
+        return b;
     }
 
     public static double[] apply(double[] a, double[] b, IntToDoubleFunction function) {

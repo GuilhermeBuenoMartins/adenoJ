@@ -1,9 +1,9 @@
 package net.imagej.nn.enums;
 
-public enum Paddings {
+public enum Padding {
 
     VALID,
 
-    ZEROS;
+    SAME;
 
 }
