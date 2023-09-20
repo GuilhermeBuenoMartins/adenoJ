@@ -4,7 +4,7 @@ import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import net.imagej.nn.Layer;
 import net.imagej.nn.Ops;
-import net.imagej.nn.enums.Activations;
+import net.imagej.nn.enums.Activation;
 
 import java.util.Arrays;
 import java.util.stream.IntStream;
@@ -17,11 +17,11 @@ public class Dense implements Layer {
 
     private double[] bias;
 
-    private Activations activation;
+    private Activation activation;
 
     private double[][] output;
 
-    public Dense(Activations activation) {
+    public Dense(Activation activation) {
         this.activation = activation;
     }
 

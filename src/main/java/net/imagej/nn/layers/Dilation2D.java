@@ -1,7 +1,7 @@
 package net.imagej.nn.layers;
 
 import net.imagej.nn.Ops;
-import net.imagej.nn.enums.Activations;
+import net.imagej.nn.enums.Activation;
 
 import java.util.Arrays;
 
@@ -13,7 +13,7 @@ public class Dilation2D {
 
     private int[] strides;
 
-    private Activations activation;
+    private Activation activation;
 
     private double[][][][] output;
 
@@ -78,7 +78,7 @@ public class Dilation2D {
         }
     }
 
-    public double[][][][] exec(double[][][][] input, double[][][][] weigthts, int[] strides, Activations activation) {
+    public double[][][][] exec(double[][][][] input, double[][][][] weigthts, int[] strides, Activation activation) {
         this.input = input;
         this.weights = weigthts;
         this.strides = strides;

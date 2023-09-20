@@ -69,7 +69,7 @@ public class App {
                                                 { { -0.03585156, 0.07758348 }, { 0.08057486, 0.03336884 } } } };
                 double[] b = new double[] { 0.00, 0.00};
                 int[] strides = new int[] { 1, 1 };
-                double[][][][] c = new MaxPooling2D(new int[]{2, 2}, strides, Padding.SAME).exec(a);
+                double[][][][] c = new Conv2D(w, b).exec(a);
                 System.out.println(Arrays.deepToString(c));
                 int[] cShape = new int[] {c.length, c[0].length, c[0][0].length, c[0][0][0].length};
                 System.out.printf("\nShape: %s\n", Arrays.toString(cShape));
