@@ -58,11 +58,25 @@ public class Dilation2D {
     }
 
     private void reluActivation() {
-
+        for (int i = 0; i < input.length; i++) { // Iterate number of samples
+            for (int j = 0; j < output[0].length; j++) { // Iterate number of rows
+                for (int k = 0; k < output[0][0].length; k++) { // Iterate number of columns
+                    double[][][] window = getWindow(i, j * strides[0], k * strides[1]);
+                    output[i][j][k] = Ops.relu(dilation(window));
+                }
+            }
+        }
     }
 
     private void sigmoidActivation() {
-
+                for (int i = 0; i < input.length; i++) { // Iterate number of samples
+            for (int j = 0; j < output[0].length; j++) { // Iterate number of rows
+                for (int k = 0; k < output[0][0].length; k++) { // Iterate number of columns
+                    double[][][] window = getWindow(i, j * strides[0], k * strides[1]);
+                    output[i][j][k] = Ops.sigmoid(dilation(window));
+                }
+            }
+        }
     }
 
     private void applyConvolution() {
