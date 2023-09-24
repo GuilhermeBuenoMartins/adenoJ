@@ -35,16 +35,40 @@ public class Ops {
         return apply(a, b, i -> a[i] + b[i]);
     }
 
+    public static double[] sub(double[] a, double[] b) {
+        int aNumCols = a.length;
+        int bNumCols = b.length;
+        if (aNumCols != bNumCols) {
+            String err = "Addition element-wise not allow. Expected number of matrix b dimensions equals to [%d], but was [%d].";
+            throw new IndexOutOfBoundsException(String.format(err, aNumCols, bNumCols));
+        }
+        return apply(a, b, i -> a[i] - b[i]);
+    }
+
     public static double[][] add(double[][] a, double[][] b) {
         int aNumRows = a.length;
         int bNumRows = b.length;
         if (aNumRows != bNumRows) {
-            String err = "Addition element-wise not allow. Expected number of matrix b dimensions equals to [%d], but was [%d].";
+            String err = "Subtraction element-wise not allow. Expected number of matrix b dimensions equals to [%d], but was [%d].";
             throw new IndexOutOfBoundsException(String.format(err, aNumRows, bNumRows));
         }
         double[][] c = new double[a.length][a[0].length];
         for (int i = 0; i < a.length; i++) {
             c[i] = add(a[i], b[i]);
+        }
+        return c;
+    }
+
+    public static double[][] sub(double[][] a, double[][] b) {
+        int aNumRows = a.length;
+        int bNumRows = b.length;
+        if (aNumRows != bNumRows) {
+            String err = "Subtraction element-wise not allow. Expected number of matrix b dimensions equals to [%d], but was [%d].";
+            throw new IndexOutOfBoundsException(String.format(err, aNumRows, bNumRows));
+        }
+        double[][] c = new double[a.length][a[0].length];
+        for (int i = 0; i < a.length; i++) {
+            c[i] = sub(a[i], b[i]);
         }
         return c;
     }

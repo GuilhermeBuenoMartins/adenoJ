@@ -1,11 +1,11 @@
 package net.imagej.nn.layers;
 
+import java.util.Arrays;
+
 import net.imagej.nn.Ops;
 import net.imagej.nn.enums.Activation;
 
-import java.util.Arrays;
-
-public class Dilation2D {
+public class Erosion2D {
 
     private double[][][][] input;
 
@@ -17,23 +17,23 @@ public class Dilation2D {
 
     private double[][][][] output;
 
-    private double[] dilation(double[][][] window) {
-        double[] dil = new double[output[0][0][0].length];
-        double[][] max = new double[output[0][0][0].length][window[0][0].length];
+    private double[] erosion(double[][][] window) {
+        double[] ero = new double[output[0][0][0].length];
+        double[][] min = new double[output[0][0][0].length][window[0][0].length];
         for (int i = 0; i < window.length; i++) { // Iterate number of rows
             for (int j = 0; j < window[0].length; j++) { // Iterate number of columns
                 for (int k = 0; k < weights[0][0][0].length; k++) { // Iterate number of filters
-                    double[] sum = Ops.add(window[i][j], Ops.t(weights[i][j])[k]);
-                    for (int l = 0; l < max[k].length; l++) { // Iterate number of channels
-                        max[k][l] = i == 0 && j == 0? sum[l]: Math.max(max[k][l], sum[l]);
+                    double[] sub = Ops.sub(window[i][j], Ops.t(weights[weights.length - 1 - i][weights[0].length -1 - j])[k]);
+                    for (int l = 0; l < min[k].length; l++) { // Iterate number of channels
+                        min[k][l] = i == 0 && j == 0? sub[l]: Math.min(min[k][l], sub[l]);
                     }
                 }
             }
         }
-        for (int i = 0; i < dil.length; i++) {
-            dil[i] = Arrays.stream(max[i]).sum();
+        for (int i = 0; i < ero.length; i++) {
+            ero[i] = Arrays.stream(min[i]).sum();
         }
-        return dil;
+        return ero;
     }
 
     private double[][][] getWindow(int i, int initJ, int initK) {
@@ -51,7 +51,7 @@ public class Dilation2D {
             for (int j = 0; j < output[0].length; j++) { // Iterate number of rows
                 for (int k = 0; k < output[0][0].length; k++) { // Iterate number of columns
                     double[][][] window = getWindow(i, j * strides[0], k * strides[1]);
-                    output[i][j][k] = dilation(window);
+                    output[i][j][k] = erosion(window);
                 }
             }
         }
@@ -62,7 +62,7 @@ public class Dilation2D {
             for (int j = 0; j < output[0].length; j++) { // Iterate number of rows
                 for (int k = 0; k < output[0][0].length; k++) { // Iterate number of columns
                     double[][][] window = getWindow(i, j * strides[0], k * strides[1]);
-                    output[i][j][k] = Ops.relu(dilation(window));
+                    output[i][j][k] = Ops.relu(erosion(window));
                 }
             }
         }
@@ -73,13 +73,13 @@ public class Dilation2D {
             for (int j = 0; j < output[0].length; j++) { // Iterate number of rows
                 for (int k = 0; k < output[0][0].length; k++) { // Iterate number of columns
                     double[][][] window = getWindow(i, j * strides[0], k * strides[1]);
-                    output[i][j][k] = Ops.sigmoid(dilation(window));
+                    output[i][j][k] = Ops.sigmoid(erosion(window));
                 }
             }
         }
     }
 
-    private void applyDilation() {
+    private void applyErosion() {
         switch (activation) {
             case NONE:
                 noneActivation();
@@ -104,8 +104,8 @@ public class Dilation2D {
         int[] outputDims = Ops.getDim(inputDims, weightsDims, numFilters, paddingDims, strides);
         System.out.printf("Output dims = %s \n", Arrays.toString(outputDims));
         output = new double[input.length][outputDims[0]][outputDims[1]][outputDims[2]];
-        applyDilation();
+        applyErosion();
         return output;
     }
-
+    
 }
