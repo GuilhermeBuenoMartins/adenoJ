@@ -83,7 +83,7 @@ public class App {
                                                                 { 0.08057486, 0.03336884 } } } };
                 double[] b = new double[] { 0.00, 0.00 };
                 int[] strides = new int[] { 1, 1 };
-                double[][][][] c = new Dilation2D(w, strides, Activation.SIGMOID).exec(a);
+                double[][][][] c = new Erosion2D(w, strides, Activation.NONE).exec(a);
                 System.out.println(Arrays.deepToString(c));
                 int[] cShape = new int[] { c.length, c[0].length, c[0][0].length, c[0][0][0].length };
                 System.out.printf("\nShape: %s\n", Arrays.toString(cShape));
