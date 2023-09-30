@@ -6,9 +6,6 @@ import net.imagej.nn.Layer;
 import net.imagej.nn.Ops;
 import net.imagej.nn.enums.Activation;
 
-import java.util.Arrays;
-import java.util.stream.IntStream;
-
 public class Dense implements Layer {
 
     private double[][] input;
@@ -63,6 +60,11 @@ public class Dense implements Layer {
         Gson gson = new Gson();
         this.weights = gson.fromJson(jsonObject.get("weights"), double[][].class);
         this.bias = gson.fromJson(jsonObject.get("bias"), double[].class);
+    }
+
+    @Override
+    public Object exec(Object input) {
+        return exec((double[][]) input);
     }
 
     public double[][] exec(double[][] input) {

@@ -5,6 +5,7 @@ import com.google.gson.JsonArray;
 import net.imagej.nn.enums.LayerType;
 import net.imagej.nn.layers.Conv2D;
 import net.imagej.nn.layers.Dense;
+import net.imagej.nn.layers.Erosion2D;
 import net.imagej.nn.layers.Flatten;
 import net.imagej.nn.layers.MaxPooling2D;
 
@@ -43,18 +44,12 @@ public class Model {
         int jsonIdx = 0;
         for (Layer layer : layers) {
             LayerType layerType = LayerType.getEnum(layer.getClass().getSimpleName());
+            layer.load(jsonArray.get(jsonIdx).getAsJsonObject());
             switch (layerType) {
-                case CONV_2D:
-                    ((Conv2D) layer).load(jsonArray.get(jsonIdx).getAsJsonObject());
+                case CONV_2D: case DILATION_2D: case DENSE: case EROSION_2D:
                     jsonIdx++;
                     break;
-                case DENSE:
-                    ((Dense) layer).load(jsonArray.get(jsonIdx).getAsJsonObject());
-                    jsonIdx++;
-                    break;
-                case MAX_POOLING_2D:
-                    break;
-                case FLATTEN:
+                case FLATTEN: case MAX_POOLING_2D:
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + layerType);
@@ -62,26 +57,11 @@ public class Model {
         }
     }
 
+
     public Object exec(Object input) {
         Object output = null;
         for (Layer layer : layers) {
-            LayerType layerType = LayerType.getEnum(layer.getClass().getSimpleName());
-            switch (layerType) {
-                case CONV_2D:
-                    output = ((Conv2D) layer).exec((double[][][][]) input);
-                    break;
-                case DENSE:
-                    output = ((Dense) layer).exec((double[][]) input);
-                    break;
-                case MAX_POOLING_2D:
-                    output = ((MaxPooling2D) layer).exec((double[][][][]) input);
-                    break;
-                case FLATTEN:
-                    output = ((Flatten) layer).exec((double[][][][]) input);
-                    break;
-                default:
-                    throw new IllegalStateException("Unexpected value: " + layerType);
-            }
+            output = layer.exec(input);
             input = output;
         }
         return output;

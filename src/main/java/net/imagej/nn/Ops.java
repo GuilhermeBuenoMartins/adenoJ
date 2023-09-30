@@ -78,7 +78,7 @@ public class Ops {
         int bNumRows = b.length;
         if (aNumCols != bNumRows) {
             String err = "Matrix multiplication not allow. Expected number of matrix b rows equals to %d, but was %d.";
-            throw new IndexOutOfBoundsException(String.format(err, aNumCols, bNumRows));
+            throw new IndexOutOfBoundsException(String.format(err, bNumRows, aNumCols));
         }
         int aNumRows = a.length;
         int bNumCols = b[0].length;
@@ -111,22 +111,35 @@ public class Ops {
         return Arrays.stream(values).map(x -> Math.max(x, 0)).toArray();
     }
 
-    public static int[] getDim(int[] inputDims, int[] kernelDims, int numFilters, int[] paddingDims, int[] strides) {
+    public static int[] getOutputDims(int[] inputDims, int[] kernelDims, int numFilters, int[] paddingDims, int[] strides) {
         int numRows = Math.floorDiv(inputDims[0] + 2 * paddingDims[0] - kernelDims[0], strides[0]) + 1;
         int numCols = Math.floorDiv(inputDims[1] + 2 * paddingDims[1] - kernelDims[1], strides[1]) + 1;
         int numChnl = numFilters;
         return new int[]{numRows, numCols, numChnl};
     }
 
-    public static int[] getDim(int[] inputDims, int[] poolSize, int[] paddingDims, int[] strides) {
+    public static int[] getOutputDims(int[] inputDims, int[] poolSize, int[] paddingDims, int[] strides) {
         int numRows = Math.floorDiv(inputDims[0] + 2 * paddingDims[0] - poolSize[0], strides[0]) + 1;
         int numCols = Math.floorDiv(inputDims[1] + 2 * paddingDims[1] - poolSize[1], strides[1]) + 1;
         int numChnl = inputDims[2];
         return new int[]{numRows, numCols, numChnl};
     }
 
+    public static int[] getPadding(int[] kernelDims) {
+        return new int[] {kernelDims[0] - 1, kernelDims[1] - 1};
+    }
+
+    public static double[][][][] getPadInput(int[] inputDims, int[] kernelDims) {
+        int[] padding = getPadding(kernelDims);
+        return new double[inputDims[0]][inputDims[1] + padding[0]][ inputDims[2] + padding[1]][inputDims[3]];
+    }
+
     public static double[] zeros(int widith) {
         return Arrays.stream(new double[widith]).map(i -> 0).toArray();
+    }
+
+    public static double[] ones(int widith) {
+        return Arrays.stream(new double[widith]).map(i -> 1).toArray();
     }
 
     public static double[][][] zeros(int height, int width, int deepth) {

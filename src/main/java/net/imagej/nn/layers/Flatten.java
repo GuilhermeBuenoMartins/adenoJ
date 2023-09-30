@@ -1,8 +1,21 @@
 package net.imagej.nn.layers;
 
+import com.google.gson.JsonObject;
+
 import net.imagej.nn.Layer;
 
 public class Flatten implements Layer {
+
+    @Override
+    public void load(JsonObject jsonObject) {
+        // Layer without weights or bias
+        // Unnecessary implementation
+    }
+
+    @Override
+    public Object exec(Object input) {
+        return exec((double[][][][]) input);
+    }
 
     public double[][] exec(double[][][][] input) {
         int numFeatures = input[0].length * input[0][0].length * input[0][0][0].length;

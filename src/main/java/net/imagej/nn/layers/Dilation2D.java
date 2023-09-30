@@ -1,22 +1,42 @@
 package net.imagej.nn.layers;
 
+import net.imagej.nn.Layer;
 import net.imagej.nn.Ops;
 import net.imagej.nn.enums.Activation;
 import net.imagej.nn.enums.Padding;
 
 import java.util.Arrays;
 
-public class Dilation2D {
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+
+public class Dilation2D implements Layer {
 
     private double[][][][] weights;
 
-    private int[] strides;
+    private int[] strides = new int[] {1, 1};
 
-    private Activation activation;
+    private Activation activation = Activation.NONE;
 
-    private Padding padding;
+    private Padding padding = Padding.SAME;
 
     private double[][][][] output;
+
+    public Dilation2D() {}
+
+    public Dilation2D(Activation activation) {
+        this.activation = activation;
+    }
+
+    public Dilation2D(Padding padding) {
+        this.padding = padding;
+    }
+
+    public Dilation2D(Activation activation, Padding padding) {
+        this.activation = activation;
+        this.padding = padding;
+    }
+
 
     public Dilation2D(double[][][][] weights) {
         this.weights = weights;
@@ -47,22 +67,22 @@ public class Dilation2D {
     }
 
     private double[][][][] padding(double[][][][] input) {
-        int[] padding = new int[]{Math.round(weights.length / 2), Math.round(weights[0].length / 2)};
-        double[][][][] padInput = new double[input.length][input[0].length + padding[0]][input[0][0].length + padding[1]][input[0][0][0].length];
+        int[] inputDims = new int[] {input.length, input[0].length, input[0][0].length, input[0][0][0].length};
+        int[] kernelDims = new int[] {weights.length, weights[0].length, weights[0][0].length, weights[0][0][0].length};
+        double[][][][] padInput = Ops.getPadInput(inputDims, kernelDims);
+        int[] padding = Ops.getPadding(kernelDims);
+        int padRow = padding[0] / 2;
+        int padCol = padding[1] / 2;
         for (int i = 0; i < padInput.length; i++) {
             for (int j = 0; j < padInput[0].length; j++) {
-                padInput[i][j] = Ops.apply(padInput[i][j], d -> d + Double.NEGATIVE_INFINITY);
+                padInput[i][j] = Ops.apply(padInput[i][j], d -> Double.NEGATIVE_INFINITY);
             }
         }
-        for (int i = 0; i < input.length; i++) {
-            for (int j = 0; j < input[0].length; j++) { // Reverse iteration of number of rows
-                for (int k = 0; k < input[0][0].length; k++) { // Reverse iteration of number of rows
-                    int padInputRow = padInput[0].length - 1 - j - padding[0];
-                    int padInputCol = padInput[0][0].length - 1 - k - padding[1];
-                    padInput[i][padInputRow][padInputCol] = input[i][input[0].length - 1 - j][input[0][0].length - 1 - k];
+        for (int i = 0; i < input.length; i++) { // Iteration of number of samples
+            for (int j = 0; j < input[0].length; j++) { // Iteration of number of rows
+                System.arraycopy(input[i][j], 0, padInput[i][padRow + j], padCol, input[0][0].length);
                 }
             }
-        }
         return padInput;
     }
 
@@ -141,14 +161,23 @@ public class Dilation2D {
         }
     }
 
+    public void load(JsonObject jsonObject) {
+        Gson gson = new Gson();
+        this.weights = gson.fromJson(jsonObject.get("weights"), double[][][][].class);
+    }
+
+    @Override
+    public Object exec(Object input) {
+        return exec((double[][][][]) input);
+    }
+
     public double[][][][] exec(double[][][][] input) {
         input = padding.equals(Padding.SAME)? padding(input): input;
         int[] inputDims = new int[] { input[0].length, input[0][0].length, input[0][0][0].length };
         int[] weightsDims = new int[] { weights.length, weights[0].length };
         int numFilters = weights[0][0][0].length;
         int[] paddingDims = new int[] { 0, 0 };
-        int[] outputDims = Ops.getDim(inputDims, weightsDims, numFilters, paddingDims, strides);
-        System.out.printf("Output dims = %s \n", Arrays.toString(outputDims));
+        int[] outputDims = Ops.getOutputDims(inputDims, weightsDims, numFilters, paddingDims, strides);
         output = new double[input.length][outputDims[0]][outputDims[1]][outputDims[2]];
         applyDilation(input);
         return output;
